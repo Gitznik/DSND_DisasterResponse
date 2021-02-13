@@ -24,13 +24,34 @@ import pickle
 
 
 def load_data(database_filepath):
+    """Load the data from a Sqlite data base
+
+    Args:
+        database_filepath (string): Path to the Sqlite data base
+
+    Returns:
+        X (DataFrame): Table of predictor variables
+        Y (DataFrame): Table of target variables
+        categories (Series): Categories to be predicted
+    """    
     engine = create_engine('sqlite:///' + database_filepath)
     df = pd.read_sql_table(table_name= 'MessagesCategorized', con = engine)
     X = df['message']
     Y = df.drop(['id', 'message', 'original', 'genre'], axis=1)
+    return X, Y, Y.columns
 
 
 def tokenize(text):
+    """Tokenizes the input text. This includes normalizing to lower case, 
+    removing spaces and punctuation marks, splitting in words, 
+    removing stop words and lemmatization.
+
+    Args:
+        text (string): Text to be tokenized
+
+    Returns:
+        [list]: Tokenized text
+    """    
     text = re.sub(r"[^a-zA-Z0-9]", " ", text.lower())
     tokens = word_tokenize(text)
 
@@ -42,6 +63,15 @@ def tokenize(text):
 
 
 def build_model():
+    """Builds a model based on a pipeline consisting of:
+    - Count Vectorizer
+    - Tfidf Transformation
+    - Multi Output Classifier, using a Random Forest Classifier
+    Provides the model as a Grid Search CV with some parameters.
+
+    Returns:
+        [model]: GridSearchCV Model
+    """    
     pipeline = Pipeline(
         [
             ('vect', CountVectorizer(tokenizer=tokenize)),
@@ -57,11 +87,21 @@ def build_model():
         'clf__estimator__min_samples_leaf': [1, 4],
     }
 
-    model = GridSearchCV(pipeline, param_grid= parameters, verbose= 10)
+    # Reduced folds to 2 for decreasing run time
+    model = GridSearchCV(pipeline, param_grid= parameters, verbose= 10, cv= 2)
     return model
 
 
 def evaluate_model(model, X_test, Y_test, category_names):
+    """Evaluates the models performance by predicting on X_test. Prints out the 
+    classification report for all categories and the best found parameters.
+
+    Args:
+        model (model): Model to evaluate
+        X_test (DataFrame): Predictor variables of the testing data
+        Y_test ([type]): Target variables of the testing data
+        category_names ([type]): Categories to be evaluated
+    """    
     print(f'Best parameters: {model.best_params_}')
     y_pred = model.predict(X_test)
     for i, name in enumerate(Y_test.columns):
@@ -71,6 +111,12 @@ def evaluate_model(model, X_test, Y_test, category_names):
 
 
 def save_model(model, model_filepath):
+    """Saves the model with pickle
+
+    Args:
+        model (model): Model to be saved
+        model_filepath (string): Path, where to save the model
+    """    
     pickle.dump(model, open(model_filepath, 'wb'))
 
 

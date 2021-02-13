@@ -22,6 +22,16 @@ def load_data(messages_filepath, categories_filepath):
 
 
 def clean_data(df):
+    """Cleans the a dataset provided as a DataFrame and returns the cleaned DataFrame.
+    Cleaning includes expanding the categories and cleaning them up.
+
+
+    Args:
+        df (DataFrame): Data, containing categories as a single column, as well as messages
+
+    Returns:
+        DataFrame: Cleaned DataFrame
+    """    
     # Prepare data
     categories = df.categories.str.split(';', expand = True)
     row = categories.loc[0]
@@ -42,6 +52,12 @@ def clean_data(df):
 
 
 def save_data(df, database_filename):
+    """Saves the data to a Sqlite data base
+
+    Args:
+        df (DataFrame): Final data, to be saved to a data base
+        database_filename (string): Path where to create the data base
+    """    
     engine = create_engine('sqlite:///' + database_filename)
     df.to_sql('MessagesCategorized', engine, index=False, if_exists='replace')  
 
