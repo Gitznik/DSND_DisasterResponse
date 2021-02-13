@@ -130,3 +130,6 @@ dmypy.json
 
 # vs code workspaces
 *.code-workspace
+
+# ML Models too big for Github
+models/classifier.py
