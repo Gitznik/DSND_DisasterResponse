@@ -132,4 +132,4 @@ dmypy.json
 *.code-workspace
 
 # ML Models too big for Github
-models/classifier.py
+models/classifier.pkl
