@@ -128,8 +128,9 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# vs code workspaces
+# vs code workspaces and configs
 *.code-workspace
+.vscode/*
 
 # ML Models too big for Github
 models/classifier.pkl
