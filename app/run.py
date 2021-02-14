@@ -26,11 +26,10 @@ def tokenize(text):
     return clean_tokens
 
 # load data
-engine = create_engine('sqlite:///../data/DisasterResponse.db')
+engine = create_engine('sqlite:///data/DisasterResponse.db')
 df = pd.read_sql_table('MessagesCategorized', engine)
-
 # load model
-model = joblib.load("../models/classifier.pkl")
+model = joblib.load("models/classifier.pkl")
 
 
 # index webpage displays cool visuals and receives user input text for model
@@ -41,6 +40,8 @@ def index():
     # extract data needed for visuals
     # TODO: Below is an example - modify to extract data for your own visuals
     genre_counts = df.groupby('genre').count()['message']
+    related_counts = df.groupby('genre').agg({'related': 'sum', 'message': 'count'})
+    related_counts['percentage'] = related_counts['related'] / related_counts['message']
     genre_names = list(genre_counts.index)
     
     # create visuals
@@ -56,6 +57,24 @@ def index():
 
             'layout': {
                 'title': 'Distribution of Message Genres',
+                'yaxis': {
+                    'title': "Count"
+                },
+                'xaxis': {
+                    'title': "Genre"
+                }
+            }
+        },
+        {
+            'data': [
+                Bar(
+                    x=genre_names,
+                    y=related_counts.percentage
+                )
+            ],
+
+            'layout': {
+                'title': 'Distribution of related Messages by Genre',
                 'yaxis': {
                     'title': "Count"
                 },
