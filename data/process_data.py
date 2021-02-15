@@ -48,6 +48,11 @@ def clean_data(df):
     # Remove duplicates
     df.drop_duplicates(subset='id', inplace=True)
 
+    # Remove rows that have a 2 in related, as this is assumed to be faulty data
+    implausible_related_count = (df['related'] == 2).sum()
+    df = df.loc[df.related != 2]
+    print(f'Dropped {implausible_related_count} faulty messages.')
+    
     return df
 
 
